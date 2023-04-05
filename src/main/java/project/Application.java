@@ -3,7 +3,6 @@ package project;
 import project.dao.EmployeeDao;
 import project.dao.EmployeeDaoImpl;
 import project.datasourse.DataSourceManager;
-import project.model.City;
 import project.model.Employee;
 
 import java.sql.SQLException;
@@ -15,12 +14,12 @@ public class Application {
         EmployeeDao employeeDao = new EmployeeDaoImpl(DataSourceManager.getConnection());
 
         Employee employee = new Employee("Владимир", "Владимирович", "male",
-                29, new City(1));
+                29, 1);
 
-//        employeeDao.addEmployee(employee);
-        System.out.println(employeeDao.getEmployeeById(5));
-        // employeeDao.updateEmployee(7,employee);
-        //   employeeDao.deleteEmployeeById(7);
+        employeeDao.addEmployee(employee);
+        //  System.out.println(employeeDao.getEmployeeById(4));
+        //    employeeDao.updateEmployee(15,employee);
+        employeeDao.deleteEmployee(employee);
         System.out.println(employeeDao.readAll());
 
 

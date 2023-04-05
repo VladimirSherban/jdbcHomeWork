@@ -1,14 +1,14 @@
 package project.dao;
 
 import lombok.RequiredArgsConstructor;
-import project.model.City;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import project.datasourse.HibernateSessionFactoryUtil;
 import project.model.Employee;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -18,105 +18,55 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public void addEmployee(Employee employee) {
-        try (PreparedStatement statement = connection.prepareStatement
-                ("INSERT INTO employee (first_name, last_name, gender, age, city_id)" + "VALUES ((?),(?),(?),(?),(?))")) {
 
-            statement.setString(1, employee.getFirstName());
-            statement.setString(2, employee.getLastName());
-            statement.setString(3, employee.getGender());
-            statement.setInt(4, employee.getAge());
-            statement.setInt(5, employee.getCity().getCityId());
-
-            statement.execute();
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();) {
+            // Создаем транзакцию и начинаем ее
+            Transaction transaction = session.beginTransaction();
+            // вызываем на объекте сессии метод save
+            // данный метод внутри себя содержит необходимый запрос к базе
+            // для создания новой строки
+            session.save(employee);
+            // Выполняем коммит, то есть сохраняем изменения,
+            // которые совершили в рамках транзакции
+            transaction.commit();
             System.out.println("Новый сотрудник успешно добавлен!");
-        } catch (SQLException e) {
-            e.printStackTrace();
+
         }
     }
 
     @Override
     public Employee getEmployeeById(Integer id) {
-        Employee employee = new Employee();
-        try (PreparedStatement statement = connection.prepareStatement(
-                "SELECT emp.first_name, emp.last_name, ct.city_name, emp.gender, emp.age, ct.city_id\n" +
-                        "FROM employee emp\n" +
-                        "         INNER JOIN city ct ON emp.city_id = ct.city_id where id = (?) "
-        )) {
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                employee.setFirstName(resultSet.getString("first_name"));
-                employee.setLastName(resultSet.getString("last_name"));
-                employee.setAge(resultSet.getInt("age"));
-                employee.setGender(resultSet.getString("gender"));
-                employee.setCity(new City(resultSet.getInt("city_id"), resultSet.getString("city_name")));
-            }
-            if (employee.getFirstName() == null && employee.getLastName() == null && employee.getAge() == null) {
-                throw new IllegalArgumentException("Сотрудника с таким id не существует");
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();) {
+            return session.get(Employee.class, id);
         }
-        return employee;
     }
 
     @Override
     public List<Employee> readAll() {
-        List<Employee> employees = new ArrayList<>();
-
-        try (PreparedStatement statement = connection.prepareStatement(
-                "SELECT * from employee"
-        )) {
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                employees.add(employeeFromResultSet(resultSet));
-            }
-
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();) {
+            return session.createQuery("FROM Employee").list();
         }
-        return employees;
     }
 
     @Override
     public void updateEmployee(Integer id, Employee employee) {
-        Employee createdEmployee = getEmployeeById(id);
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();) {
+            Transaction transaction = session.beginTransaction();
+            session.update(employee);
+            transaction.commit();
+            System.out.println("сотрудник изменен");
 
-        if (createdEmployee != null) {
-            try (PreparedStatement statement = connection.prepareStatement
-                    ("Update employee SET first_name = (?), last_name = (?), gender = (?), age = (?), city_id = (?) WHERE id = (?)")) {
-
-                statement.setString(1, employee.getFirstName());
-                statement.setString(2, employee.getLastName());
-                statement.setString(3, employee.getGender());
-                statement.setInt(4, employee.getAge());
-                statement.setInt(5, employee.getCity().getCityId());
-                statement.setInt(6, id);
-
-                statement.execute();
-                System.out.println("Сотрудник изменен");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     @Override
-    public void deleteEmployeeById(Integer id) {
-        Employee createdEmployee = getEmployeeById(id);
-        if (createdEmployee != null) {
-            try (PreparedStatement statement = connection.prepareStatement
-                    ("DELETE from employee WHERE id = (?)")) {
+    public void deleteEmployee(Employee employee) {
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();) {
+            Transaction transaction = session.beginTransaction();
+            session.delete(employee);
+            transaction.commit();
+            System.out.println("сотрудник удален");
 
-                statement.setInt(1, id);
-                statement.execute();
-                System.out.println("Сотрудник удален");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -126,6 +76,6 @@ public class EmployeeDaoImpl implements EmployeeDao {
         String gender = resultSet.getString("gender");
         Integer age = resultSet.getInt("age");
         Integer cityId = resultSet.getInt("city_id");
-        return new Employee(firstName, lastName, gender, age, new City(cityId));
+        return new Employee(firstName, lastName, gender, age, cityId);
     }
 }
