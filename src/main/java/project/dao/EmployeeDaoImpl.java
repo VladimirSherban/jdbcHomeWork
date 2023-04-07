@@ -6,15 +6,10 @@ import org.hibernate.Transaction;
 import project.datasourse.HibernateSessionFactoryUtil;
 import project.model.Employee;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class EmployeeDaoImpl implements EmployeeDao {
-
-    private final Connection connection;
 
     @Override
     public void addEmployee(Employee employee) {
@@ -49,7 +44,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
     }
 
     @Override
-    public void updateEmployee(Integer id, Employee employee) {
+    public void updateEmployee(Employee employee) {
         try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();) {
             Transaction transaction = session.beginTransaction();
             session.update(employee);
@@ -68,14 +63,5 @@ public class EmployeeDaoImpl implements EmployeeDao {
             System.out.println("сотрудник удален");
 
         }
-    }
-
-    private Employee employeeFromResultSet(ResultSet resultSet) throws SQLException {
-        String firstName = resultSet.getString("first_name");
-        String lastName = resultSet.getString("last_name");
-        String gender = resultSet.getString("gender");
-        Integer age = resultSet.getInt("age");
-        Integer cityId = resultSet.getInt("city_id");
-        return new Employee(firstName, lastName, gender, age, cityId);
     }
 }
