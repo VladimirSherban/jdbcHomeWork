@@ -3,10 +3,13 @@ package project.datasourse;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import project.model.City;
 import project.model.Employee;
 
 public class HibernateSessionFactoryUtil {
+
     private static SessionFactory sessionFactory;
+
 
     private HibernateSessionFactoryUtil() {
     }
@@ -16,6 +19,7 @@ public class HibernateSessionFactoryUtil {
             try {
                 Configuration configuration = new Configuration().configure();
                 configuration.addAnnotatedClass(Employee.class);
+                configuration.addAnnotatedClass(City.class);
                 StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
                 sessionFactory = configuration.buildSessionFactory(builder.build());
 

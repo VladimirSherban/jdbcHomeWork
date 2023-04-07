@@ -13,5 +13,12 @@
             <jdbc-url>jdbc:postgresql://localhost/skypro</jdbc-url>
             <working-dir>$ProjectFileDir$</working-dir>
         </data-source>
+        <data-source source="LOCAL" name="postgres@localhost" uuid="eace6340-e654-4cbc-8e23-02145953b056">
+            <driver-ref>postgresql</driver-ref>
+            <synchronize>true</synchronize>
+            <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+            <jdbc-url>jdbc:postgresql://localhost:5433/postgres</jdbc-url>
+            <working-dir>$ProjectFileDir$</working-dir>
+        </data-source>
     </component>
 </project>
