@@ -31,6 +31,8 @@ public class Application {
 
         cityDao.deleteCity(city);
 
+        System.out.println("Конец работы");
+
 
     }
 }
