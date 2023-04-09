@@ -33,6 +33,8 @@ public class Application {
 
         System.out.println("Конец работы");
 
+        System.out.println("Demo");
+
 
     }
 }
