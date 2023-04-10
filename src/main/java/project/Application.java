@@ -39,6 +39,8 @@ public class Application {
 
         System.out.println("Первый разработчик добавил");
 
+        System.out.println("3-push-request-demo");
+
 
     }
 }
