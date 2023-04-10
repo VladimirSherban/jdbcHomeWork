@@ -35,6 +35,8 @@ public class Application {
 
         System.out.println("Demo");
 
+        System.out.println("Первый разработчик добавил");
+
 
     }
 }
